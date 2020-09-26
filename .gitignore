@@ -1,7 +1,7 @@
+__pycache__/
+*.py[cod]
+
 *.sqlite3
 kushagra_media_space/settings.py
 .venv/
 .idea/
-__pycache__/
- *.pyc
-
