@@ -1,0 +1,7 @@
+Django==3.1.1
+psycopg2==2.8.6
+django-nested-admin==3.3.2
+num2words==0.5.10
+djangorestframework==3.11.1
+django-admin-rangefilter==0.6.2
+xhtml2pdf==0.2.4

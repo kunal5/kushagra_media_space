@@ -1,0 +1,4 @@
+*.sqlite3
+kushagra_media_space/settings.py
+.venv/
+.idea/

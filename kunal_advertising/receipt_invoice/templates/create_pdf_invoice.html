@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kunal Advertising</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Oleo+Script' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+        body{
+            margin-top:20px;
+            background:#eee;
+        }
+
+        table, th, td {
+            border-bottom: 2px;
+        }
+
+        .invoice {
+            background: #fff;
+            padding: 20px;
+        }
+
+        .invoice-company {
+            font-size: larger;
+            font-family: cursive;
+            color: #2b2b2b;
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+        }
+
+        .invoice-header {
+            margin: 0 -20px;
+            background: #f0f3f4;
+            padding: 20px;
+        }
+
+        .invoice-date,
+        .invoice-from,
+        .invoice-to {
+            display: table-cell;
+            width: 1%;
+        }
+
+        .invoice-from,
+        .invoice-to {
+            padding-right: 20px;
+        }
+
+        .invoice-date .date,
+        .invoice-from strong,
+        .invoice-to strong {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .invoice-date {
+            text-align: right;
+            padding-left: 20px;
+        }
+
+        .total-amount {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .amount-in-words {
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .invoice-footer {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            font-size: 10px;
+        }
+
+        .invoice-note {
+            color: #999;
+            margin-top: 80px;
+            font-size: 85%;
+        }
+
+        .btn-xl {
+            background: antiquewhite;
+            padding: 10px 20px;
+            font-size: 20px;
+            border-radius: 14px;
+            width:20%;
+        }
+    </style>
+</head>
+<body>
+
+    <h3>
+        <center style="font-family: 'Times New Roman'">BILL CUM RECEIPT</center>
+    </h3>
+    <h1>
+        <center class="invoice-company">Kunal Advertising</center>
+    </h1>
+<div class="container">
+   <div class="col-md-12">
+      <div class="invoice">
+        {% load tz %}
+         <!-- begin invoice-company -->
+
+         <!-- end invoice-company -->
+         <!-- begin invoice-header -->
+         <div class="invoice-header">
+            <div class="invoice-from">
+                <small>from</small>
+               <address class="m-t-5 m-b-5">
+                  <strong class="text-inverse">Kunal Advertising</strong><br>
+                  1, (Basement) Sadaf Center<br>
+                  Opp. Rashtriya Sahara<br>
+                  Kapoorthala, Aliganj<br>
+                  Lucknow- 226024<br>
+                  Phone: 4003824<br>
+                   Mobile No.: (+91) 9415027253
+               </address>
+            </div>
+            <div class="invoice-to">
+               <small>to</small>
+               <address class="m-t-5 m-b-5">
+                  <strong class="text-inverse">{{receipt_invoice.client_name}}</strong><br>
+                   Phone: {{receipt_invoice.phone_number}}<br>
+                   Address: {{receipt_invoice.address}}<br>
+                   Mode of Payment: {{receipt_invoice.mode_of_payment.title}}<br>
+                   {% timezone "Asia/Kolkata" %}
+                       Date: {{receipt_invoice.created_at|date:'Y-m-d'}}<br>
+                   {% endtimezone %}
+                   Bank: {{receipt_invoice.bank_name}}<br>
+                   Branch: {{receipt_invoice.branch}}<br>
+               </address>
+            </div>
+            <div class="invoice-date">
+               <small>Invoice Period</small>
+                {% timezone "Asia/Kolkata" %}
+                     <div class="date text-inverse m-t-5">{{receipt_invoice.created_at|date:'Y-m-d'}}</div>
+                   {% endtimezone %}
+               <div class="invoice-detail">
+                  #{{ receipt_invoice.id }}<br>
+               </div>
+            </div>
+         </div>
+         <!-- end invoice-header -->
+         <!-- begin invoice-content -->
+         <div class="invoice-content">
+            <!-- begin table-responsive -->
+            <div class="table-responsive">
+               <table class="table table-invoice">
+                  <thead>
+                     <tr>
+                         <th>SI. No.</th>
+                         <th>Paper Name</th>
+                         <th>Publication Date</th>
+                         <th>Rate(in Rs.)</th>
+                          <th>Extra Lines/Words</th>
+                          <th>AMOUNT(in Rs.)</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {% for paper in receipt_invoice.total_papers.all %}
+                         <tr>
+                            <td >{{ forloop.counter }}</td>
+                            <td>
+                                {{ paper.name }}<br>
+                                <strong>Edition: </strong>{{ paper.edition }}<br>
+                                <strong>Caption: </strong>{{ paper.caption }}
+                            </td>
+                            <td >
+                                {% for advt_date in paper.all_dates.all %}
+                                     {% timezone "Asia/Kolkata" %}
+                                         {{ advt_date.date|date:'d-m-Y' }}<br>
+                                     {% endtimezone %}
+                                {% endfor %}
+                             </td>
+                            <td>{{paper.rate}}/-</td>
+                            <td>
+                                {{paper.extra_lines_or_words}}<br>
+                                <strong>Cost: </strong>Rs.{{paper.cost_of_one_extra_line_or_word}}/-
+                            </td>
+                            <td >{{paper.amount_charged}}/-</td>
+                         </tr>
+                     {% endfor %}
+                  <tr>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td class="total-amount">
+                          Total: Rs {{ total_amount_charged }}/-<br>
+                          <span class="amount-in-words">
+                              ({{ total_amount_charged_in_words }} only.)
+                          </span>
+                      </td>
+
+                  </tr>
+                  </tbody>
+               </table>
+                <div style="float: right; font-weight: bold; font-family: cursive; font-size: 20px;">For Kunal Advertising</div>
+                <br>
+                <br>
+            <br>
+            <br>
+                <div style="float: right; font-weight: bolder">Authorised Signature</div>
+            </div>
+            <!-- end table-responsive -->
+            <!-- begin invoice-price -->
+            <!-- end invoice-price -->
+         </div>
+         <!-- end invoice-content -->
+         <!-- begin invoice-note -->
+         <div class="invoice-note">
+            * Subject to realisation of cheque<br>
+         </div>
+         <!-- end invoice-note -->
+         <!-- begin invoice-footer -->
+         <div class="invoice-footer">
+            <p class="text-center m-b-5 f-w-600">
+               THANK YOU
+            </p>
+            <p class="text-center">
+               <span class="m-r-10"><i class="fa fa-fw fa-lg fa-phone-volume"></i> 0522-4003824</span>
+               <span class="m-r-10"><i class="fa fa-fw fa-lg fa-envelope"></i> kmslko@gmail.com</span>
+            </p>
+         </div>
+         <!-- end invoice-footer -->
+      </div>
+   </div>
+</div>
+</body>
+</html>
