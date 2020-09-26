@@ -3,4 +3,5 @@ kushagra_media_space/settings.py
 .venv/
 .idea/
 __pycache__/
-*.py[cod]
+ *.pyc
+
