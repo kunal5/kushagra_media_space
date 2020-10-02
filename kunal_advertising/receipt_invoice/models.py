@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from num2words import num2words
@@ -13,6 +15,8 @@ from kunal_advertising.receipt_invoice.constants import (
     CACHE_KEY_FOR_TOTAL_AMOUNT,
 )
 from kunal_advertising.receipt_invoice.validators import phone_number_validator
+
+logger = logging.getLogger(__name__)
 
 
 class CreateUpdateAbstractModel(models.Model):
@@ -56,6 +60,7 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
         )
 
     def save(self, *args, **kwargs):
+        logger.info("Data for save is {0}".format(self.__dict__))
         cache.delete(CACHE_KEY_FOR_TOTAL_AMOUNT.format(client_id=self.pk))
         cache.delete(CACHE_KEY_FOR_TOTAL_AMOUNT_IN_WORDS.format(client_id=self.pk))
 
@@ -115,6 +120,7 @@ class PaperForAdvertisement(CreateUpdateAbstractModel):
         super(PaperForAdvertisement, self).clean()
 
     def save(self, *args, **kwargs):
+        logger.info("Data for save is {0}".format(self.__dict__))
         if self.extra_lines_or_words and self.cost_of_one_extra_line_or_word:
             self.calculate_total_amount_charged()
         else:
@@ -180,6 +186,7 @@ class DatesForPaperAdvertisement(models.Model):
         )
 
     def save(self, *args, **kwargs):
+        logger.info("Data for save is {0}".format(self.__dict__))
         if not self.date:
             raise ValidationError("Please Enter the date.")
 
