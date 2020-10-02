@@ -6,3 +6,4 @@ djangorestframework==3.11.1
 django-admin-rangefilter==0.6.2
 uwsgi==2.0.19.1
 python-memcached==1.59
+requests==2.24.0

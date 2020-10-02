@@ -1,7 +1,10 @@
 import logging
 
+import requests
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.utils import timezone
 from num2words import num2words
 
 from django.core.exceptions import ValidationError
@@ -61,10 +64,49 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
 
     def save(self, *args, **kwargs):
         logger.info("Data for save is {0}".format(self.__dict__))
-        cache.delete(CACHE_KEY_FOR_TOTAL_AMOUNT.format(client_id=self.pk))
-        cache.delete(CACHE_KEY_FOR_TOTAL_AMOUNT_IN_WORDS.format(client_id=self.pk))
+        if "cache_invalidate" not in kwargs:
+            cache.delete(CACHE_KEY_FOR_TOTAL_AMOUNT.format(client_id=self.pk))
+            cache.delete(CACHE_KEY_FOR_TOTAL_AMOUNT_IN_WORDS.format(client_id=self.pk))
+        else:
+            kwargs.pop("cache_invalidate")
 
         super(ReceiptInvoice, self).save(*args, **kwargs)
+
+    def send_message_for_bill_receipt_created(self, total_amount_charged):
+        current_time = timezone.now()
+        url = "https://www.fast2sms.com/dev/bulk"
+
+        payload = "sender_id={}&message={}&language=english&route=p&numbers={}".format(
+            settings.SENDER_ID,
+            settings.MESSAGE_CONTENT.format(
+                client_name=self.client_name,
+                user_name=self.created_by.first_name,
+                amount_charged=total_amount_charged,
+                time=current_time,
+            ),
+            settings.RECIPIENT_NUMBER,
+        )
+
+        headers = {
+            "authorization": settings.FAST_SMS_API_KEY,
+            "cache-control": "no-cache",
+            "content-type": "application/x-www-form-urlencoded",
+        }
+
+        try:
+            response = requests.request("POST", url, data=payload, headers=headers)
+        except Exception as exc:
+            logger.error(
+                "ERROR occurred while sending message {} for client Name: {} ID: {}".format(
+                    exc, self.client_name, self.pk
+                )
+            )
+        else:
+            self.message_sent = True
+            kwargs = {}
+            kwargs["cache_invalidate"] = False
+            self.save(**kwargs)
+            logger.info("Message sent to mummy at {0}. Response payload is {1}".format(current_time, response.json()))
 
 
 class PaperForAdvertisement(CreateUpdateAbstractModel):

@@ -1,5 +1,4 @@
 from django.core.cache import cache
-from django.urls import reverse
 from rest_framework import status
 from django.http import HttpResponseNotFound, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -50,6 +49,9 @@ class ReceiptInvoicePreview(TemplateView):
         cache_key_for_total_amount_in_words = CACHE_KEY_FOR_TOTAL_AMOUNT_IN_WORDS.format(client_id=receipt_invoice.id)
         context["total_amount_charged"] = cache.get(cache_key_for_total_amount)
         context["total_amount_charged_in_words"] = cache.get(cache_key_for_total_amount_in_words)
+
+        if not receipt_invoice.message_sent:
+            receipt_invoice.send_message_for_bill_receipt_created(context["total_amount_charged"])
 
         return render(
             request,
