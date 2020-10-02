@@ -17,8 +17,10 @@ from django.contrib import admin
 from django.urls import path, include
 
 from kunal_advertising.receipt_invoice import urls as receipt_invoice_urls
+from kunal_advertising.receipt_invoice.views import RedirectToAdminView
 
 urlpatterns = [
+    path(r"", RedirectToAdminView.as_view(), name="redirect_to_admin"),
     path("admin/", admin.site.urls),
     path("_nested_admin/", include("nested_admin.urls")),
     path("receipt-invoice/", include(receipt_invoice_urls)),

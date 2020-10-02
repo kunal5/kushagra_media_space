@@ -1,10 +1,11 @@
 from django.core.cache import cache
+from django.urls import reverse
 from rest_framework import status
-from django.http import HttpResponseNotFound, JsonResponse, HttpResponse
+from django.http import HttpResponseNotFound, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 
 from kunal_advertising.receipt_invoice.models import ReceiptInvoice
 from kunal_advertising.receipt_invoice.constants import (
@@ -13,6 +14,11 @@ from kunal_advertising.receipt_invoice.constants import (
     CACHE_KEY_FOR_TOTAL_AMOUNT,
     CACHE_KEY_FOR_TOTAL_AMOUNT_IN_WORDS,
 )
+
+
+class RedirectToAdminView(View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect("/admin/")
 
 
 class ReceiptInvoicePreview(TemplateView):
