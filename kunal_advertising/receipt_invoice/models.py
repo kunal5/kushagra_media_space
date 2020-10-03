@@ -56,6 +56,7 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
         choices=MODE_OF_PAYMENT_CHOICES,
         help_text="Mode of payment which client chose to do the payment.",
     )
+    message_response = models.JSONField(null=True)
 
     def __str__(self):
         return "Receipt ID:{0} Client Name:{1} Created By:{2}".format(
@@ -74,6 +75,7 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
 
     def send_message_for_bill_receipt_created(self, total_amount_charged):
         current_time = timezone.now()
+        message_sent = None
         url = "https://www.fast2sms.com/dev/bulk"
 
         payload = "sender_id={}&message={}&language=english&route=p&numbers={}".format(
@@ -101,12 +103,17 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
                     exc, self.client_name, self.pk
                 )
             )
+            message_sent = False
         else:
-            self.message_sent = True
-            kwargs = {}
-            kwargs["cache_invalidate"] = False
-            self.save(**kwargs)
+            message_sent = True
+            self.message_response = response.json()
+
             logger.info("Message sent to mummy at {0}. Response payload is {1}".format(current_time, response.json()))
+        finally:
+            self.message_sent = message_sent
+            kwargs = {"cache_invalidate": False}
+            self.save(**kwargs)
+
 
 
 class PaperForAdvertisement(CreateUpdateAbstractModel):
