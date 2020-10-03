@@ -56,7 +56,9 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
         choices=MODE_OF_PAYMENT_CHOICES,
         help_text="Mode of payment which client chose to do the payment.",
     )
-    message_response = models.JSONField(null=True)
+    message_response = models.CharField(
+        max_length=500, null=True, help_text="Response sent by fast2sms api about message sent status"
+    )
 
     def __str__(self):
         return "Receipt ID:{0} Client Name:{1} Created By:{2}".format(
@@ -113,7 +115,6 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
             self.message_sent = message_sent
             kwargs = {"cache_invalidate": False}
             self.save(**kwargs)
-
 
 
 class PaperForAdvertisement(CreateUpdateAbstractModel):
