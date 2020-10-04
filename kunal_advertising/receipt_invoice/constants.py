@@ -5,3 +5,4 @@ NO_PAPER_FOUND = (
 NO_DATE_FOUND = "No date has been selected for paper {paper_name}. Please go the admin page and add date for this paper"
 CACHE_KEY_FOR_TOTAL_AMOUNT = "total_amount_for_{client_id}"
 CACHE_KEY_FOR_TOTAL_AMOUNT_IN_WORDS = "total_amount_in_words_for_{client_id}"
+TIME_12_HRS_FORMAT = "%d/%m/%Y %I:%M %p"

@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.utils import timezone
 from num2words import num2words
+from pytz import timezone as pytz_timezone
 
 from django.core.exceptions import ValidationError
 from django.db import models, IntegrityError
@@ -16,10 +17,13 @@ from kunal_advertising.receipt_invoice.constants import (
     RATE_OF_GST,
     CACHE_KEY_FOR_TOTAL_AMOUNT_IN_WORDS,
     CACHE_KEY_FOR_TOTAL_AMOUNT,
+    TIME_12_HRS_FORMAT,
 )
 from kunal_advertising.receipt_invoice.validators import phone_number_validator
 
 logger = logging.getLogger(__name__)
+
+IST = pytz_timezone("Asia/Kolkata")
 
 
 class CreateUpdateAbstractModel(models.Model):
@@ -90,7 +94,7 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
                 client_name=self.client_name,
                 user_name=self.created_by.first_name,
                 amount_charged=total_amount_charged,
-                time=current_time.isoformat(),
+                time=current_time.astimezone(IST).strftime(TIME_12_HRS_FORMAT),
             ),
             settings.RECIPIENT_NUMBER,
         )
@@ -177,11 +181,9 @@ class PaperForAdvertisement(CreateUpdateAbstractModel):
             self.amount_charged = self.rate
             self.amount_charged_in_words = num2words(self.amount_charged).title()
 
-        self.log_state_change()
-
         super(PaperForAdvertisement, self).save(*args, **kwargs)
 
-    def log_state_change(self):
+    def log_state_change(self, user):
         from django.contrib.admin.models import LogEntry, CHANGE
 
         messages = []
@@ -206,7 +208,7 @@ class PaperForAdvertisement(CreateUpdateAbstractModel):
         try:
             for message in messages:
                 LogEntry.objects.create(
-                    user_id=1,
+                    user_id=user.pk,
                     content_type_id=ContentType.objects.get_for_model(
                         self.receipt_invoice, for_concrete_model=False
                     ).pk,

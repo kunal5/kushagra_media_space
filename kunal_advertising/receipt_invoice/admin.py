@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from django.core.cache import cache
+from django.forms.models import BaseInlineFormSet
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from nested_admin.nested import NestedModelAdmin, NestedStackedInline
@@ -16,6 +17,15 @@ from kunal_advertising.receipt_invoice.models import (
     DatesForPaperAdvertisement,
 )
 from kunal_advertising.receipt_invoice.constants import CACHE_KEY_FOR_TOTAL_AMOUNT, CACHE_KEY_FOR_TOTAL_AMOUNT_IN_WORDS
+
+
+class PaperForAdvertisementFormSet(BaseInlineFormSet):
+    def save_existing(self, form, instance, commit=True):
+        obj = super(PaperForAdvertisementFormSet, self).save_existing(form, instance, commit=True)
+        # here you can add anything you need from the request
+        obj.log_state_change(self.request.user)
+
+        return obj
 
 
 class DatesForPaperAdvertisementInline(NestedStackedInline):
@@ -35,6 +45,7 @@ class PaperForAdvertisementInline(NestedStackedInline):
     ]
     classes = ("collapse",)
     extra = 1
+    formset = PaperForAdvertisementFormSet
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -44,6 +55,11 @@ class PaperForAdvertisementInline(NestedStackedInline):
             ]
 
         return []
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super(PaperForAdvertisementInline, self).get_formset(request, obj, **kwargs)
+        formset.request = request
+        return formset
 
 
 class ReceiptInvoiceAdmin(NestedModelAdmin):
@@ -92,8 +108,8 @@ class ReceiptInvoiceAdmin(NestedModelAdmin):
             all_papers = obj.total_papers.all().aggregate(total_amount_charged=Sum("amount_charged"))
             total_amount = all_papers.get("total_amount_charged")
             if total_amount:
-                cache.set(cache_key_for_total_amount, total_amount)
-                cache.set(cache_key_for_total_amount_in_words, num2words(total_amount).title())
+                cache.set(cache_key_for_total_amount, total_amount, 60 * 24 * 365)
+                cache.set(cache_key_for_total_amount_in_words, num2words(total_amount).title(), 60 * 24 * 365)
 
         return total_amount
 
