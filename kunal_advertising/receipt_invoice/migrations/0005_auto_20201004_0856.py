@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('receipt_invoice', '0004_backfill_caption'),
+        ("receipt_invoice", "0004_backfill_caption"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='paperforadvertisement',
-            name='caption',
+            model_name="paperforadvertisement",
+            name="caption",
         ),
         migrations.AlterField(
-            model_name='receiptinvoice',
-            name='caption',
-            field=models.CharField(help_text='Caption for the receipt.', max_length=100),
+            model_name="receiptinvoice",
+            name="caption",
+            field=models.CharField(help_text="Caption for the receipt.", max_length=100),
         ),
     ]

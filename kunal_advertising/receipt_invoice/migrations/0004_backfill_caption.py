@@ -22,9 +22,7 @@ def blank_migration(*args, **kwargs):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('receipt_invoice', '0003_receiptinvoice_caption'),
+        ("receipt_invoice", "0003_receiptinvoice_caption"),
     ]
 
-    operations = [
-        migrations.RunPython(backfill_receipt_caption, blank_migration)
-    ]
+    operations = [migrations.RunPython(backfill_receipt_caption, blank_migration)]
