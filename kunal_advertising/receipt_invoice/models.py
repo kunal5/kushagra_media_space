@@ -50,6 +50,10 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
     branch = models.CharField(
         max_length=100, help_text="Branch name for the bank given by the client", null=True, blank=True
     )
+    caption = models.CharField(
+        max_length=100,
+        help_text="Caption for the receipt.",
+    )
     mode_of_payment = models.CharField(
         max_length=10,
         default=CHOICE_CASH,
@@ -86,7 +90,7 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
                 client_name=self.client_name,
                 user_name=self.created_by.first_name,
                 amount_charged=total_amount_charged,
-                time=current_time,
+                time=current_time.isoformat(),
             ),
             settings.RECIPIENT_NUMBER,
         )
@@ -119,10 +123,6 @@ class ReceiptInvoice(CreateUpdateAbstractModel):
 
 class PaperForAdvertisement(CreateUpdateAbstractModel):
     name = models.CharField(
-        max_length=100,
-        help_text="Name of the paper in which Advertisement has to be shown",
-    )
-    caption = models.CharField(
         max_length=100,
         help_text="Name of the paper in which Advertisement has to be shown",
     )
