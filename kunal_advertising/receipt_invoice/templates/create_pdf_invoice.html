@@ -139,7 +139,7 @@
                    {% endtimezone %}
                    Bank: {{receipt_invoice.bank_name|default_if_none:'-'}}<br>
                    Branch: {{receipt_invoice.branch|default_if_none:'-'}}<br>
-                   Caption: {{ receipt_invoice.caption }}<br>
+                   <strong>Caption:</strong> {{ receipt_invoice.caption }}<br>
                </address>
             </div>
             <div class="invoice-date">

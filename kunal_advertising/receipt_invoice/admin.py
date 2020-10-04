@@ -52,6 +52,7 @@ class ReceiptInvoiceAdmin(NestedModelAdmin):
         "client_name",
         "phone_number",
         "message_sent",
+        "caption",
         "employee",
         "total_amount_charged",
         "generate_pdf",
@@ -64,7 +65,7 @@ class ReceiptInvoiceAdmin(NestedModelAdmin):
         "mode_of_payment",
     )
     search_fields = ("client_name",)
-    fields = ("client_name", "address", "bank_name", "branch", "mode_of_payment", "phone_number")
+    fields = ("client_name", "address", "bank_name", "branch", "mode_of_payment", "phone_number", "caption")
     inlines = [
         PaperForAdvertisementInline,
     ]
