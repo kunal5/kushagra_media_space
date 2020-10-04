@@ -137,8 +137,8 @@
                    {% timezone "Asia/Kolkata" %}
                        Date: {{receipt_invoice.created_at|date:'Y-m-d'}}<br>
                    {% endtimezone %}
-                   Bank: {{receipt_invoice.bank_name}}<br>
-                   Branch: {{receipt_invoice.branch}}<br>
+                   Bank: {{receipt_invoice.bank_name|default_if_none:'-'}}<br>
+                   Branch: {{receipt_invoice.branch|default_if_none:'-'}}<br>
                </address>
             </div>
             <div class="invoice-date">
@@ -168,7 +168,7 @@
                      </tr>
                   </thead>
                   <tbody>
-                     {% for paper in receipt_invoice.total_papers.all %}
+                     {% for paper in receipt_invoice.total_papers.all|dictsort:'id'%}
                          <tr>
                             <td >{{ forloop.counter }}</td>
                             <td>
@@ -177,7 +177,7 @@
                                 <strong>Caption: </strong>{{ paper.caption }}
                             </td>
                             <td >
-                                {% for advt_date in paper.all_dates.all %}
+                                {% for advt_date in paper.all_dates.all|dictsort:'id' %}
                                      {% timezone "Asia/Kolkata" %}
                                          {{ advt_date.date|date:'d-m-Y' }}<br>
                                      {% endtimezone %}
@@ -185,8 +185,12 @@
                              </td>
                             <td>{{paper.rate}}/-</td>
                             <td>
-                                {{paper.extra_lines_or_words}}<br>
-                                <strong>Cost: </strong>Rs.{{paper.cost_of_one_extra_line_or_word}}/-
+                                {{paper.extra_lines_or_words|default_if_none:"-"}}<br>
+                                {% if not paper.cost_of_one_extra_line_or_word %}
+                                    <strong>Cost: -</strong>
+                                {% else %}
+                                        <strong>Cost: </strong>Rs.{{paper.cost_of_one_extra_line_or_word}}/-
+                                {% endif %}
                             </td>
                             <td >{{paper.amount_charged}}/-</td>
                          </tr>
